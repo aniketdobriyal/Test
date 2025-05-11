@@ -4,6 +4,5 @@
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#111",
-  "theme_color": "#111",
-
+  "theme_color": "#111"
 }
