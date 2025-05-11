@@ -13,192 +13,121 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" href="icon.png" />
-
-  <style>
-    :root {
-      --sky-color: #275669;
-      --ground-color: gray;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      overflow: hidden;
-      font-family: sans-serif;
-      background: #222;
-      transition: background 2s;
-      padding-top: env(safe-area-inset-top);
-      padding-left: env(safe-area-inset-left);
-      padding-right: env(safe-area-inset-right);
-      padding-bottom: env(safe-area-inset-bottom);
-      
-    }
-    #game {
-      width: 110vw;
-      height: 100vh;
-      position: relative;
-      background: var(--sky-color);
-      transition: background 2s;
-      cursor: none;
-    }
-    #player {
-      width: 40px;
-      height: 40px;
-      border-radius: 100%;
-      background:#ff4444;
-      position: absolute;
-      left: 100px;
-      z-index: 5;
-      transition: background 0.3s;
-    }
-    .ground {
-      position: absolute;
-      bottom: 0;
-      height: 100px;
-      width: 200%;
-      background: var(--ground-color);
-      z-index: 1;
-    }
-    .obstacle, .enemy, .powerup, .bullet, .gorge {
-      position: absolute;
-    }
-    .enemy, .powerup {
-      width: 80px;
-      height: 80px;
-      bottom: 100px;
-    }
-    .obstacle {
-      width: 180px;
-      height: 50px;
-    }
-    .obstacle img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .enemy { background: rgb(19, 19, 19); }
-    .enemy-flying { background: orange; bottom: 200px !important; }
-    .enemy-jumping { background: purple; animation: jump 1s infinite alternate; }
-    .enemy-intelligent { background: green; }
-    .enemy-boss {
-      background: darkred;
-      width: 60px;
-      height: 60px;
-    }
-    .enemy-shooter { background: yellow; }
-    .enemy-patrolling { background: pink; }
-    .enemy-exploding { background: cyan; }
-    .enemy-shielded { background: darkblue; }
-    .enemy-teleporting { background: violet; }
-    .enemy-speed { background: lightgreen; }
-
-    @keyframes jump {
-      from { transform: translateY(0); }
-      to   { transform: translateY(-200px); }
-    }
-    .powerup {
-      width:120px;
-      height:120px;
-    }
-    .powerup img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    .bullet {
-      width: 10px;
-      height: 5px;
-      background: cyan;
-    }
-    .gorge {
-      height: 100px;
-      width: 120px;
-      background: var(--sky-color);
-      bottom: 0;
-      z-index: 1;
-      transition: background 2s;
-    }
-    #hud {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: white;
-      font-size: 18px;
-      z-index: 10;
-    }
-    .overlay {
-      cursor: default;
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      background: rgba(10, 10, 10, 0.85);
-      z-index: 25;
-      flex-direction: column;
-      color: white;
-    }
-    .overlayContent {
-      text-align: center;
-      background: #333;
-      padding: 30px 50px;
-      border-radius: 20px;
-      box-shadow: 0 0 20px #000;
-    }
-    .overlayContent h1 {
-      font-size: 48px;
-      margin-bottom: 20px;
-    }
-    .overlayContent p {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    .overlayContent button {
-      padding: 10px 30px;
-      font-size: 20px;
-      background: #ff4444;
-      border: none;
-      border-radius: 10px;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .overlayContent button:hover {
-      background: #ff2222;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+ 
   <div id="game">
-    <div id="hud">Score: 0 | Health: 3</div>
+    <div id="hud" aria-label="Game status">Score: 0 | Health: 3</div>
     <div class="ground"></div>
-    <div id="player"></div>
+    <div id="player" aria-label="Player"></div>
 
-    <div id="pauseOverlay" class="overlay">
+    <div id="pauseOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
       <div class="overlayContent">
-        <h1>Game Paused</h1>
+        <h1 id="pauseTitle">Game Paused</h1>
         <p>Press resume to continue</p>
-        <button onclick="resumeGame()">Resume Game</button>
+        <button onclick="resumeGame()" aria-label="Resume Game">Resume Game</button>
       </div>
     </div>
 
-    <div id="gameOverOverlay" class="overlay">
+    <div id="gameOverOverlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="gameOverTitle">
       <div class="overlayContent">
-        <h1>Game Over</h1>
+        <h1 id="gameOverTitle">Game Over</h1>
         <p>Your Score: <span id="finalScore">0</span></p>
-        <button onclick="location.reload()">Play Again</button>
+        <button onclick="location.reload()" aria-label="Play Again">Play Again</button>
       </div>
     </div>
   </div>
 
-  <audio id="bgMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop autoplay></audio>
+  <!-- Touch control buttons -->
+  <div id="controls" class="controls">
+
+    <div>
+      <button id="moveLeft" aria-label="Move Left">←</button>
+      <button id="moveRight" aria-label="Move Right">→</button>
+    </div>
+    
+    
+    <div>
+      <button id="shootButton" aria-label="Shoot">Shoot</button>
+      <button id="jumpButton" aria-label="Jump">↑</button>
+      <button id="boostButton" aria-label="Speed Boost">Boost</button>
+      <button id="pauseButton" aria-label="Pause Game">Pause</button>
+
+    </div>
+
+  </div>
+
+  <audio id="bgMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
 
   <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const audio = document.getElementById('bgMusic');
+      document.body.addEventListener('click', () => {
+        audio.play().catch(() => console.warn("Autoplay blocked, audio play needs interaction"));
+      }, { once: true });
+    });
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
         .then(() => console.log('Service Worker registered!'))
         .catch(err => console.error('SW registration failed:', err));
     }
   </script>
-  <script src="script.js"></script>
+
+  <script src="script.js" defer></script>
+
+  <script>
+    // Touch controls for mobile
+    const moveLeftButton = document.getElementById('moveLeft');
+    const moveRightButton = document.getElementById('moveRight');
+    const jumpButton = document.getElementById('jumpButton');
+    const shootButton = document.getElementById('shootButton');
+    const boostButton = document.getElementById('boostButton');
+    const pauseButton = document.getElementById('pauseButton');
+
+    moveLeftButton.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      keys.left = true;
+    });
+
+    moveRightButton.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      keys.right = true;
+    });
+
+    moveLeftButton.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      keys.left = false;
+    });
+
+    moveRightButton.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      keys.right = false;
+    });
+
+    jumpButton.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (jumpCount < config.maxJumps) {
+        velocityY = config.jumpVelocity;
+        jumpCount++;
+      }
+    });
+
+    shootButton.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      shoot(false);  // Shoot from the player
+    });
+
+    boostButton.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      activateSpeedBoost();
+    });
+
+    pauseButton.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      togglePause();
+    });
+  </script>
 </body>
 </html>
