@@ -2,7 +2,8 @@
   "name": "2D Platformer Game",
   "short_name": "2D Game",
   "start_url": "index.html",
-  "display": "standalone",
+  "display": "fullscreen",
+  "orientation": "landscape",
   "background_color": "#111111",
   "theme_color": "#111111",
   "icons": [
